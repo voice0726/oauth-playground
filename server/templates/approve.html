@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Approve</title>
+</head>
+
+<body>
+  <h2>Approve this client?</h2>
+  {{ if .client.Name }}
+  <p><b>Name:</b> <code>{{ .client.Name }}</code></p>
+  {{ end }} {{ if .client.ID }}
+  <p><b>ID:</b> <code>{{ .client.ID }}</code></p>
+  {{ end }}
+
+  <form class="form" action="/approve" method="POST">
+    <input type="hidden" name="reqid" value="{{ .reqid }}" />
+    <input type="submit" class="btn btn-success" name="approve" value="Approve" />
+    <input type="submit" class="btn btn-danger" name="deny" value="Deny" />
+  </form>
+</body>
+
+</html>
