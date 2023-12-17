@@ -14,7 +14,7 @@ type CodeRepository struct {
 	lg *zap.Logger
 }
 
-func NewCodeRepository(dsn string, lg *zap.Logger) (*ClientRepository, error) {
+func NewCodeRepository(dsn string, lg *zap.Logger) (*CodeRepository, error) {
 	zg := zapgorm2.New(lg)
 	zg.SetAsDefault()
 	zg.LogLevel = gormlogger.Error
@@ -23,7 +23,7 @@ func NewCodeRepository(dsn string, lg *zap.Logger) (*ClientRepository, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ClientRepository{db: db, lg: lg}, nil
+	return &CodeRepository{db: db, lg: lg}, nil
 }
 
 func (r *CodeRepository) FindByID(ID string) (*model.AuthCode, error) {
@@ -33,4 +33,21 @@ func (r *CodeRepository) FindByID(ID string) (*model.AuthCode, error) {
 	}
 
 	return result, nil
+}
+
+func (r *CodeRepository) FindByCode(code string) (*model.AuthCode, error) {
+	var result *model.AuthCode
+	if err := r.db.Model(&model.AuthCode{}).Where("code = ?", code).First(&result).Error; err != nil {
+		return nil, err
+	}
+
+	return result, nil
+
+}
+
+func (r *CodeRepository) Create(code model.AuthCode) (*model.AuthCode, error) {
+	if err := r.db.Model(&model.AuthCode{}).Save(&code).Error; err != nil {
+		return nil, err
+	}
+	return &code, nil
 }

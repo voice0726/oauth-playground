@@ -48,5 +48,5 @@ func migrate() error {
 		return err
 	}
 
-	return db.AutoMigrate(&model.AuthCode{}, &model.Client{}, &model.AuthRequest{})
+	return db.AutoMigrate(&model.AuthCode{}, &model.Client{}, &model.AuthRequest{}, &model.Token{})
 }

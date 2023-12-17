@@ -67,7 +67,7 @@ func (h *Handler) HandleCallback(c echo.Context) error {
 
 	code := q.Get("code")
 
-	if code != "" {
+	if code == "" {
 		return c.JSON(http.StatusBadRequest, "invalid code")
 	}
 
@@ -81,7 +81,7 @@ func (h *Handler) HandleCallback(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "failed to create request")
 	}
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("Authorization", "Basic "+encodedClientCredentials(client.clientID, client.clientSecret))
+	req.Header.Add("Authorization", "Basic "+encodeClientCredential(client.clientID, client.clientSecret))
 
 	res, err := h.httpClient.Do(req)
 	if err != nil {
@@ -93,11 +93,13 @@ func (h *Handler) HandleCallback(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "authorization request failed")
 	}
+	h.logger.Debug("response from token endpoint", zap.ByteString("body", b))
 
 	var resBody struct {
 		AccessToken string `json:"access_token"`
+		TokenType   string `json:"token_type"`
+		Scope       string `json:"scope"`
 	}
-	h.logger.Debug("got access token", zap.Any("resBody", resBody))
 	err = json.Unmarshal(b, &resBody)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "authorization request failed")
@@ -108,6 +110,6 @@ func (h *Handler) HandleCallback(c echo.Context) error {
 	return c.JSON(http.StatusOK, "ok")
 }
 
-func encodedClientCredentials(id, secret string) string {
-	return base64.RawStdEncoding.EncodeToString([]byte(id + ":" + secret))
+func encodeClientCredential(id, secret string) string {
+	return base64.URLEncoding.EncodeToString([]byte(id + ":" + secret))
 }

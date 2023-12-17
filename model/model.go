@@ -40,7 +40,10 @@ func (r *AuthRequest) BeforeCreate(tx *gorm.DB) (err error) {
 
 type AuthCode struct {
 	ID        uuid.UUID
-	State     string
+	Code      string
+	ClientID  uuid.UUID
+	Scope     string
+	Query     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -51,4 +54,15 @@ func (c *AuthCode) BeforeCreate(tx *gorm.DB) (err error) {
 }
 
 type Token struct {
+	ID        uuid.UUID
+	Token     string
+	ClientID  uuid.UUID
+	Scope     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (t *Token) BeforeCreate(tx *gorm.DB) (err error) {
+	t.ID = uuid.New()
+	return
 }

@@ -32,7 +32,16 @@ func NewServer(logger *zap.Logger) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	h, err := NewHandler(clientRepo, authReqRepo, logger)
+	codeRepo, err := repository.NewCodeRepository(dsn, logger)
+	if err != nil {
+		return nil, err
+	}
+	tokenRepo, err := repository.NewTokenRepository(dsn, logger)
+	if err != nil {
+		return nil, err
+	}
+
+	h, err := NewHandler(clientRepo, authReqRepo, codeRepo, tokenRepo, logger)
 
 	if err != nil {
 		return nil, err
@@ -60,7 +69,7 @@ func initializeRoutes(e *echo.Echo, h Handler) {
 	e.GET("/", h.HandleIndex)
 	e.GET("/authorize", h.HandleAuthorize)
 	e.POST("/approve", h.HandleApprove)
-	e.GET("/token", h.HandleToken)
+	e.POST("/token", h.HandleToken)
 }
 
 type Template struct {
